@@ -70,11 +70,46 @@ input:focus { border-color: var(--primary); }
 
 .tip-box {
   background: rgba(255, 255, 255, 0.05);
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
   font-size: 0.9em;
   margin-bottom: 15px;
   border-left: 4px solid #3498db;
+}
+
+.tip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.guide-content {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.guide-content ol {
+  padding-left: 20px;
+}
+
+.guide-content li {
+  margin-bottom: 8px;
+}
+
+.guide-content pre {
+  background: #000;
+  padding: 6px 10px;
+  border-radius: 4px;
+  margin-top: 5px;
+  font-family: monospace;
+  overflow-x: auto;
+}
+
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 11px;
 }
 
 /* Add form */

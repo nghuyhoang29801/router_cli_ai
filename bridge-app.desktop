@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Bridge App
+Name=router cli ai
 Comment=Start Bridge Python Server and Web UI
 Exec=/usr/bin/bash /home/hoangnh/src/project_all_cli/start.sh
 Icon=utilities-terminal

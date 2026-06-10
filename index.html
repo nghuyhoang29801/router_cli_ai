@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI CLI Manager</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <div class="container">
     <header>
@@ -30,8 +32,6 @@
           <input id="workdir-input" type="text" placeholder="/home/user/project" />
           <button id="btn-pick-dir" class="btn" title="Pick folder">📂</button>
         </div>
-        <div class="label" style="margin-top:8px">🔗 Bridge Host</div>
-        <input id="bridge-host-input" type="text" placeholder="127.0.0.1:7700" title="IP:Port of your local bridge" />
       </div>
     </section>
 
@@ -48,19 +48,35 @@
       <div class="section-header">
         <h2>AI List</h2>
         <div class="header-actions">
-           <span id="bridge-status-dot" class="dot"></span>
-           <button id="btn-add-ai" class="btn btn-primary">+ Add AI</button>
+          <span id="bridge-status-dot" class="dot"></span>
+          <button id="btn-add-ai" class="btn btn-primary">+ Add AI</button>
         </div>
       </div>
-      
+
       <div class="tip-box">
-        💡 <b>Mẹo:</b> Để chạy nhanh, hãy cài đặt <b>Desktop Shortcut</b> theo hướng dẫn trong README.
+        <div class="tip-header">
+          <span>💡 <b>Hướng dẫn:</b> Cài đặt Bridge cục bộ để khởi chạy lệnh AI.</span>
+          <button id="btn-toggle-guide" class="btn btn-sm">Xem hướng dẫn</button>
+        </div>
+        <div id="shortcut-guide" class="guide-content hidden">
+          <p style="margin-bottom: 10px; color: var(--muted); font-size: 0.85em;">Chạy 2 lệnh này trên <b>Terminal</b>
+            máy Linux của bạn:</p>
+          <ol>
+            <li>Tải mã nguồn và vào thư mục:
+              <pre><code>git clone https://github.com/nghuyhoang29801/router_cli_ai.git && cd router_cli_ai</code></pre>
+            </li>
+            <li>Chạy lệnh cài đặt tự động:
+              <pre><code>chmod +x install.sh && ./install.sh</code></pre>
+            </li>
+            <li>Sau đó, tìm và mở <b>Bridge App</b> từ menu ứng dụng của hệ điều hành.</li>
+          </ol>
+        </div>
       </div>
 
       <!-- Add form -->
       <div id="add-ai-form" class="add-form hidden">
-        <input id="new-ai-name"     type="text"   placeholder="Name (e.g. Kiro CLI)" />
-        <input id="new-ai-command"  type="text"   placeholder="Command (e.g. kiro-cli)" />
+        <input id="new-ai-name" type="text" placeholder="Name (e.g. Kiro CLI)" />
+        <input id="new-ai-command" type="text" placeholder="Command (e.g. kiro-cli)" />
         <input id="new-ai-priority" type="number" placeholder="Priority" min="1" value="1" />
         <button id="btn-save-ai" class="btn btn-primary">Save</button>
         <button id="btn-cancel-ai" class="btn">Cancel</button>
@@ -72,4 +88,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>

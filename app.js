@@ -8,7 +8,11 @@ const save = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 
 let ais         = load(LS_AIS, []);
 let currentName = load(LS_CURRENT, ais[0]?.name ?? null);
-let bridgeHost  = load(LS_BRIDGE, '127.0.0.1:7700');
+
+// Tự động lấy bridge từ URL (?bridge=IP:PORT) hoặc localStorage, mặc định 127.0.0.1:7700
+const urlParams = new URLSearchParams(window.location.search);
+let bridgeHost  = urlParams.get('bridge') || load(LS_BRIDGE, '127.0.0.1:7700');
+if (urlParams.has('bridge')) save(LS_BRIDGE, bridgeHost);
 
 const getURL = (path) => `http://${bridgeHost}${path}`;
 
@@ -180,6 +184,12 @@ document.getElementById('btn-save-ai').addEventListener('click', addAI);
 document.getElementById('btn-cancel-ai').addEventListener('click', () =>
   document.getElementById('add-ai-form').classList.add('hidden'));
 
+document.getElementById('btn-toggle-guide').addEventListener('click', (e) => {
+  const guide = document.getElementById('shortcut-guide');
+  const isHidden = guide.classList.toggle('hidden');
+  e.target.textContent = isHidden ? 'Xem hướng dẫn' : 'Đóng hướng dẫn';
+});
+
 document.getElementById('btn-pick-dir').addEventListener('click', async () => {
   try {
     const res = await fetch(getURL('/pick-dir'), { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: '{}' });
@@ -189,12 +199,6 @@ document.getElementById('btn-pick-dir').addEventListener('click', async () => {
 });
 
 document.getElementById('workdir-input').addEventListener('change', () => save(LS_WORKDIR, getWorkDir()));
-
-document.getElementById('bridge-host-input').addEventListener('change', (e) => {
-  bridgeHost = e.target.value.trim() || '127.0.0.1:7700';
-  save(LS_BRIDGE, bridgeHost);
-  checkBridge();
-});
 
 // Expire cooldowns mỗi 60s
 setInterval(() => {
@@ -227,5 +231,4 @@ ais.forEach(ai => { if (!ai.command) ai.command = ''; });
 persist();
 const wd = load(LS_WORKDIR, '');
 if (wd) document.getElementById('workdir-input').value = wd;
-document.getElementById('bridge-host-input').value = bridgeHost;
 renderAll();
