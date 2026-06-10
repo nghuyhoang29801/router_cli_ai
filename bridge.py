@@ -103,21 +103,40 @@ def open_terminal(command: str, work_dir: str):
 
 
 def pick_directory():
-    """Mở folder dialog dùng tkinter (cross-platform)."""
+    """Mở folder dialog dùng tkinter hoặc zenity/kdialog (cross-platform)."""
+    import shutil
+    env = get_display_env()
+
+    if not IS_WINDOWS:
+        # Thử các công cụ native trên Linux trước
+        if shutil.which("zenity"):
+            try:
+                cmd = ["zenity", "--file-selection", "--directory", "--title=Select working directory"]
+                path = subprocess.check_output(cmd, env=env).decode("utf-8").strip()
+                return path
+            except subprocess.CalledProcessError:
+                return ""
+        if shutil.which("kdialog"):
+            try:
+                cmd = ["kdialog", "--getexistingdirectory", "."]
+                path = subprocess.check_output(cmd, env=env).decode("utf-8").strip()
+                return path
+            except subprocess.CalledProcessError:
+                return ""
+
     try:
         import tkinter as tk
         from tkinter import filedialog
         
         root = tk.Tk()
         root.withdraw()  # Ẩn cửa sổ chính
-        root.attributes('-topmost', True)
+        root.attributes("-topmost", True)
         
         path = filedialog.askdirectory(title="Select working directory")
         root.destroy()
         return path
     except Exception as e:
         print(f"[bridge] Tkinter error: {e}")
-        # Fallback nếu không có tkinter (hiếm gặp trên Windows)
         return ""
 
 

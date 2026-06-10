@@ -204,8 +204,17 @@ document.getElementById('btn-pick-dir').addEventListener('click', async () => {
   try {
     const res = await fetch(getURL('/pick-dir'), { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: '{}' });
     const d = await res.json();
-    if (d.path) { document.getElementById('workdir-input').value = d.path; save(LS_WORKDIR, d.path); }
-  } catch { alert(`Bridge not running at ${bridgeHost}.\nRun: python3 bridge.py`); }
+    if (res.ok) {
+      if (d.path) {
+        document.getElementById('workdir-input').value = d.path;
+        save(LS_WORKDIR, d.path);
+      }
+    } else {
+      alert(`Bridge error: ${d.error || 'Failed to pick directory'}`);
+    }
+  } catch (err) {
+    alert(`Bridge not running at ${bridgeHost}.\nRun: python3 bridge.py`);
+  }
 });
 
 document.getElementById('workdir-input').addEventListener('change', () => save(LS_WORKDIR, getWorkDir()));
