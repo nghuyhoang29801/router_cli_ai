@@ -15,7 +15,7 @@ $shell = New-Object -ComObject WScript.Shell
 $shortcut = $shell.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = "cmd.exe"
 $shortcut.Arguments = "/c `"$startBat`""
-$shortcut.WorkingDirectory = $currentDir
+$shortcut.WorkingDirectory = $currentDir.Path
 $shortcut.IconLocation = Join-Path $currentDir "manager.png"
 $shortcut.WindowStyle = 7 # Minimized (chay thu nho)
 $shortcut.Save()
