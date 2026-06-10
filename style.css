@@ -17,7 +17,7 @@ header { margin-bottom: 24px; }
 header h1 { font-size: 1.4rem; font-weight: 700; }
 
 /* Dashboard */
-.dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.dashboard { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
 .label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
 .value { font-size: 1.4rem; font-weight: 700; }
