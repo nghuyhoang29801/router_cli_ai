@@ -1,23 +1,23 @@
-const LS_AIS     = 'ai_list';
+const LS_AIS = 'ai_list';
 const LS_CURRENT = 'ai_current';
 const LS_WORKDIR = 'workdir';
-const LS_BRIDGE  = 'bridge_host';
+const LS_BRIDGE = 'bridge_host';
 
 const load = (key, fb) => { try { return JSON.parse(localStorage.getItem(key)) ?? fb; } catch { return fb; } };
 const save = (key, val) => localStorage.setItem(key, JSON.stringify(val));
 
-let ais         = load(LS_AIS, []);
+let ais = load(LS_AIS, []);
 let currentName = load(LS_CURRENT, ais[0]?.name ?? null);
 
 // Tự động lấy bridge từ URL (?bridge=IP:PORT) hoặc localStorage, mặc định 127.0.0.1:7700
 const urlParams = new URLSearchParams(window.location.search);
-let bridgeHost  = urlParams.get('bridge') || load(LS_BRIDGE, '127.0.0.1:7700');
+let bridgeHost = urlParams.get('bridge') || load(LS_BRIDGE, '127.0.0.1:7700');
 if (urlParams.has('bridge')) save(LS_BRIDGE, bridgeHost);
 
 const getURL = (path) => `http://${bridgeHost}${path}`;
 
-const now        = () => Date.now();
-const isLimited  = ai => ai.cooldownUntil && now() < ai.cooldownUntil;
+const now = () => Date.now();
+const isLimited = ai => ai.cooldownUntil && now() < ai.cooldownUntil;
 const remainText = ai => {
   const ms = ai.cooldownUntil - now(), min = Math.ceil(ms / 60000);
   if (min < 60) return `${min}m`;
@@ -26,14 +26,33 @@ const remainText = ai => {
   const d = Math.floor(h / 24), rh = h % 24;
   return rh ? `${d}d${rh}h` : `${d}d`;
 };
-const getCurrent    = () => ais.find(a => a.name === currentName) ?? null;
+const getCurrent = () => ais.find(a => a.name === currentName) ?? null;
 const nextAvailable = () =>
   [...ais].filter(a => a.enabled && a.name !== currentName && !isLimited(a))
-          .sort((a, b) => a.priority - b.priority)[0] ?? null;
-const persist    = () => { save(LS_AIS, ais); save(LS_CURRENT, currentName); };
+    .sort((a, b) => a.priority - b.priority)[0] ?? null;
+const persist = () => { save(LS_AIS, ais); save(LS_CURRENT, currentName); };
 const getWorkDir = () => document.getElementById('workdir-input').value.trim();
 
 // ===== Render Dashboard =====
+const renderTopAI = () => {
+  const top = [...ais]
+    .filter(a => a.enabled && !isLimited(a))
+    .sort((a, b) => a.priority - b.priority)[0] ?? null;
+
+  const btn = document.getElementById('btn-open-top');
+  const nameEl = document.getElementById('top-ai-name');
+
+  if (top) {
+    btn.disabled = false;
+    nameEl.textContent = top.name;
+    btn.onclick = () => window.openCLI(top.name);
+  } else {
+    btn.disabled = true;
+    nameEl.textContent = 'None available';
+    btn.onclick = null;
+  }
+};
+
 const renderDashboard = () => {
   const ai = getCurrent();
   document.getElementById('current-ai-name').textContent = ai?.name ?? '—';
@@ -62,7 +81,7 @@ const renderAIList = () => {
       return a.priority - b.priority;      // sau đó theo priority
     })
     .map(ai => {
-      const limited  = isLimited(ai);
+      const limited = isLimited(ai);
       const isCurrent = ai.name === currentName;
       const cls = ['ai-item', isCurrent ? 'active' : '', limited ? 'limited' : '', !ai.enabled ? 'disabled' : ''].filter(Boolean).join(' ');
       return `
@@ -91,7 +110,7 @@ const renderAIList = () => {
     }).join('');
 };
 
-const renderAll = () => { renderDashboard(); renderAIList(); };
+const renderAll = () => { renderDashboard(); renderTopAI(); renderAIList(); };
 
 // ===== Actions =====
 
@@ -117,7 +136,7 @@ window.toggleSettings = name => {
 
 window.updateField = (name, field, value) => {
   const ai = ais.find(a => a.name === name);
-  if (ai) { ai[field] = value; persist(); renderDashboard(); renderAIList(); }
+  if (ai) { ai[field] = value; persist(); renderAll(); }
 };
 
 window.toggleAI = name => {
@@ -155,15 +174,15 @@ const confirmLimit = () => {
 };
 
 const addAI = () => {
-  const name     = document.getElementById('new-ai-name').value.trim();
-  const command  = document.getElementById('new-ai-command').value.trim();
+  const name = document.getElementById('new-ai-name').value.trim();
+  const command = document.getElementById('new-ai-command').value.trim();
   const priority = parseInt(document.getElementById('new-ai-priority').value) || ais.length + 1;
-  if (!name)    { alert('Name is required.'); return; }
+  if (!name) { alert('Name is required.'); return; }
   if (!command) { alert('CLI command is required.'); return; }
   if (ais.find(a => a.name === name)) { alert('Already exists.'); return; }
   ais.push({ name, command, enabled: true, cooldownUntil: null, priority });
   if (!currentName) currentName = name;
-  ['new-ai-name','new-ai-command'].forEach(id => document.getElementById(id).value = '');
+  ['new-ai-name', 'new-ai-command'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('new-ai-priority').value = '1';
   document.getElementById('add-ai-form').classList.add('hidden');
   persist(); renderAll();
@@ -217,6 +236,7 @@ setInterval(() => {
 
 const checkBridge = async () => {
   const dot = document.getElementById('bridge-status-dot');
+  if (!dot) return;
   try {
     const res = await fetch(getURL('/run'), { method: 'OPTIONS' });
     if (res.ok || res.status === 204) {
