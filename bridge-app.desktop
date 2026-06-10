@@ -2,7 +2,7 @@
 Name=Bridge App
 Comment=Start Bridge Python Server and Web UI
 Exec=/usr/bin/bash /home/hoangnh/src/project_all_cli/start.sh
-Icon=utilities-terminal
+Icon=/home/hoangnh/src/project_all_cli/manager.png
 Terminal=false
 Type=Application
 Categories=Development;

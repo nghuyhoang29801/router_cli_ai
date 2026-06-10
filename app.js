@@ -169,6 +169,15 @@ const addAI = () => {
   persist(); renderAll();
 };
 
+window.switchTab = (os) => {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.toLowerCase() === os);
+  });
+  document.querySelectorAll('.guide-panel').forEach(p => {
+    p.classList.toggle('active', p.id === `panel-${os}`);
+  });
+};
+
 // ===== Events =====
 document.getElementById('btn-mark-limited').addEventListener('click', markLimited);
 document.getElementById('btn-remove-limit').addEventListener('click', () => {
@@ -231,4 +240,12 @@ ais.forEach(ai => { if (!ai.command) ai.command = ''; });
 persist();
 const wd = load(LS_WORKDIR, '');
 if (wd) document.getElementById('workdir-input').value = wd;
+
+// Tự động chọn tab theo OS
+if (navigator.platform.toUpperCase().indexOf('WIN') !== -1) {
+  switchTab('windows');
+} else {
+  switchTab('linux');
+}
+
 renderAll();

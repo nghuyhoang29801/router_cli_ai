@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-bridge.py — Local HTTP bridge server
+bridge.py — Local HTTP bridge server (Cross-platform)
 Nhận lệnh từ web app (fetch) và mở terminal mới với CLI + prompt.
 
 Usage: python3 bridge.py [--port 7700]
@@ -8,15 +8,17 @@ Usage: python3 bridge.py [--port 7700]
 
 import json
 import os
+import platform
 import shlex
 import subprocess
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 PORT = 7700
+IS_WINDOWS = platform.system() == "Windows"
 
 # Danh sách terminal emulator ưu tiên (Linux)
-TERMINALS = [
+TERMINALS_LINUX = [
     ["gnome-terminal", "--"],
     ["xterm", "-e"],
     ["konsole", "-e"],
@@ -27,11 +29,14 @@ TERMINALS = [
 
 
 def get_display_env():
-    """Lấy DISPLAY/WAYLAND từ session đang chạy, dùng khi service boot trước graphical session."""
+    """Lấy DISPLAY/WAYLAND từ session đang chạy (Linux)."""
     env = dict(os.environ)
+    if IS_WINDOWS:
+        return env
+    
     if env.get('DISPLAY') or env.get('WAYLAND_DISPLAY'):
         return env
-    # Tìm DISPLAY từ process của user hiện tại (gnome-session, Xorg, ...)
+    
     try:
         uid = str(os.getuid())
         for pid_dir in os.listdir('/proc'):
@@ -55,7 +60,11 @@ def get_display_env():
 def find_terminal():
     """Tìm terminal emulator có sẵn trên hệ thống."""
     import shutil
-    for term in TERMINALS:
+    if IS_WINDOWS:
+        # Trên Windows dùng lệnh start của cmd
+        return ["cmd", "/c", "start", "cmd", "/k"]
+    
+    for term in TERMINALS_LINUX:
         if shutil.which(term[0]):
             return term
     return None
@@ -67,23 +76,49 @@ def open_terminal(command: str, work_dir: str):
     if not terminal:
         raise RuntimeError("No supported terminal emulator found.")
     
-    term_name = terminal[0]
-    cd_cmd = f"cd {shlex.quote(work_dir)} && " if work_dir else ""
-    
     env = get_display_env()
-    env['GEMINI_CLI_TRUST_WORKSPACE'] = 'true'  # allow gemini in any directory
+    env['GEMINI_CLI_TRUST_WORKSPACE'] = 'true'
     
-    # Bọc lệnh: nếu lỗi (exit code != 0) thì giữ terminal lại để xem lỗi
-    wrapped_cmd = f"{cd_cmd}{command} || {{ echo; echo '---'; echo '❌ Lệnh kết thúc với lỗi (Exit code: $?).'; read -p 'Nhấn Enter để đóng terminal...'; }}"
-    
-    if term_name == "gnome-terminal":
-        cmd = ["gnome-terminal", "--", "bash", "-ic", wrapped_cmd]
-    elif term_name == "tilix":
-        cmd = ["tilix", "-e", f"bash -ic {shlex.quote(wrapped_cmd)}"]
+    if IS_WINDOWS:
+        # Windows: cd /d path && command
+        cd_cmd = f'cd /d "{work_dir}" && ' if work_dir else ""
+        # Bọc lệnh để giữ terminal nếu lỗi (Exit code != 0)
+        wrapped_cmd = f'{cd_cmd}{command} || (echo. & echo --- & echo [X] Lenh ket thuc voi loi. & pause)'
+        # Sử dụng shell=True để lệnh 'start' hoạt động
+        subprocess.Popen(wrapped_cmd, env=env, shell=True)
     else:
-        cmd = terminal + ["bash", "-ic", wrapped_cmd]
-    
-    subprocess.Popen(cmd, env=env)
+        # Linux
+        term_name = terminal[0]
+        cd_cmd = f"cd {shlex.quote(work_dir)} && " if work_dir else ""
+        wrapped_cmd = f"{cd_cmd}{command} || {{ echo; echo '---'; echo '❌ Lệnh kết thúc với lỗi (Exit code: $?).'; read -p 'Nhấn Enter để đóng terminal...'; }}"
+        
+        if term_name == "gnome-terminal":
+            cmd = ["gnome-terminal", "--", "bash", "-ic", wrapped_cmd]
+        elif term_name == "tilix":
+            cmd = ["tilix", "-e", f"bash -ic {shlex.quote(wrapped_cmd)}"]
+        else:
+            cmd = terminal + ["bash", "-ic", wrapped_cmd]
+        
+        subprocess.Popen(cmd, env=env)
+
+
+def pick_directory():
+    """Mở folder dialog dùng tkinter (cross-platform)."""
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+        
+        root = tk.Tk()
+        root.withdraw()  # Ẩn cửa sổ chính
+        root.attributes('-topmost', True)
+        
+        path = filedialog.askdirectory(title="Select working directory")
+        root.destroy()
+        return path
+    except Exception as e:
+        print(f"[bridge] Tkinter error: {e}")
+        # Fallback nếu không có tkinter (hiếm gặp trên Windows)
+        return ""
 
 
 class ReusableHTTPServer(HTTPServer):
@@ -92,11 +127,9 @@ class ReusableHTTPServer(HTTPServer):
 
 class BridgeHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
-        # Ghi log gọn
         print(f"[bridge] {args[0]} {args[1]}")
 
     def do_OPTIONS(self):
-        """CORS preflight."""
         self._cors()
         self.send_response(204)
         self.end_headers()
@@ -110,13 +143,8 @@ class BridgeHandler(BaseHTTPRequestHandler):
             self.respond(404, {"error": "Not found"})
 
     def _handle_pick_dir(self):
-        """Mở native folder dialog dùng zenity, trả về absolute path."""
         try:
-            result = subprocess.run(
-                ["zenity", "--file-selection", "--directory", "--title=Select working directory"],
-                capture_output=True, text=True, env=get_display_env()
-            )
-            path = result.stdout.strip()
+            path = pick_directory()
             self.respond(200, {"path": path})
         except Exception as e:
             self.respond(500, {"error": str(e)})
@@ -166,7 +194,6 @@ if __name__ == "__main__":
         port = int(sys.argv[idx + 1])
 
     server = ReusableHTTPServer(("127.0.0.1", port), BridgeHandler)
-    server.allow_reuse_address = True
     print(f"[bridge] Running on http://127.0.0.1:{port}")
     print("[bridge] Press Ctrl+C to stop.")
     try:

@@ -16,9 +16,10 @@ echo "[install] ✓ Đã cấp quyền thực thi cho các script."
 
 # 2. Cập nhật đường dẫn trong file .desktop
 if [ -f "$DESKTOP_FILE" ]; then
-    # Thay thế dòng Exec bằng đường dẫn tuyệt đối đến start.sh
+    # Thay thế dòng Exec và Icon bằng đường dẫn tuyệt đối
     sed -i "s|^Exec=.*|Exec=/usr/bin/bash $START_SCRIPT|g" "$DESKTOP_FILE"
-    echo "[install] ✓ Đã cập nhật đường dẫn Exec trong file .desktop."
+    sed -i "s|^Icon=.*|Icon=$SCRIPT_DIR/manager.png|g" "$DESKTOP_FILE"
+    echo "[install] ✓ Đã cập nhật đường dẫn Exec và Icon trong file .desktop."
 else
     echo "[install] ⚠ Không tìm thấy file bridge-app.desktop!"
     exit 1

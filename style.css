@@ -90,6 +90,31 @@ input:focus { border-color: var(--primary); }
   border-top: 1px solid var(--border);
 }
 
+.tab-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tab-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.tab-btn.active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(108, 99, 255, 0.1);
+}
+
+.guide-panel { display: none; }
+.guide-panel.active { display: block; }
+
 .guide-content ol {
   padding-left: 20px;
 }

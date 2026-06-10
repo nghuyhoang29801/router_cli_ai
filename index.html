@@ -5,13 +5,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI CLI Manager</title>
+  <link rel="icon" href="manager.png" type="image/png" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
   <div class="container">
     <header>
-      <h1>🤖 AI CLI Manager</h1>
+      <h1><img src="manager.png" alt="Icon" style="height: 1.5rem; vertical-align: middle; margin-right: 10px;">AI CLI Manager</h1>
     </header>
 
     <!-- Dashboard -->
@@ -59,17 +60,40 @@
           <button id="btn-toggle-guide" class="btn btn-sm">Xem hướng dẫn</button>
         </div>
         <div id="shortcut-guide" class="guide-content hidden">
-          <p style="margin-bottom: 10px; color: var(--muted); font-size: 0.85em;">Chạy 2 lệnh này trên <b>Terminal</b>
-            máy Linux của bạn:</p>
-          <ol>
-            <li>Tải mã nguồn và vào thư mục:
-              <pre><code>git clone https://github.com/nghuyhoang29801/router_cli_ai.git && cd router_cli_ai</code></pre>
-            </li>
-            <li>Chạy lệnh cài đặt tự động:
-              <pre><code>chmod +x install.sh && ./install.sh</code></pre>
-            </li>
-            <li>Sau đó, tìm và mở <b>Bridge App</b> từ menu ứng dụng của hệ điều hành.</li>
-          </ol>
+          <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchTab('linux')">Linux</button>
+            <button class="tab-btn" onclick="switchTab('windows')">Windows</button>
+          </div>
+
+          <!-- Linux Panel -->
+          <div id="panel-linux" class="guide-panel active">
+            <p style="margin-bottom: 10px; color: var(--muted); font-size: 0.85em;">Chạy lệnh này trên <b>Terminal</b>
+              máy Linux:</p>
+            <ol>
+              <li>Tải mã nguồn:
+                <pre><code>git clone https://github.com/nghuyhoang29801/router_cli_ai.git && cd project_all_cli</code></pre>
+              </li>
+              <li>Cài đặt tự động:
+                <pre><code>chmod +x install.sh && ./install.sh</code></pre>
+              </li>
+              <li>Mở <b>Bridge App</b> từ menu ứng dụng.</li>
+            </ol>
+          </div>
+
+          <!-- Windows Panel -->
+          <div id="panel-windows" class="guide-panel">
+            <p style="margin-bottom: 10px; color: var(--muted); font-size: 0.85em;">Chạy lệnh này trên <b>PowerShell</b>
+              (Admin):</p>
+            <ol>
+              <li>Tải mã nguồn:
+                <pre><code>git clone https://github.com/nghuyhoang29801/router_cli_ai.git; cd project_all_cli</code></pre>
+              </li>
+              <li>Cho phép chạy script và cài đặt:
+                <pre><code>Set-ExecutionPolicy RemoteSigned -Scope CurrentUser; .\install.ps1</code></pre>
+              </li>
+              <li>Mở shortcut <b>Bridge App</b> trên màn hình Desktop.</li>
+            </ol>
+          </div>
         </div>
       </div>
 
