@@ -1,0 +1,15 @@
+[Unit]
+Description=Bridge Python Service
+After=network.target
+
+[Service]
+ExecStartPre=/usr/bin/pkill -f bridge.py || true
+ExecStart=/usr/bin/python3 /home/hoangnh/src/project_all_cli/bridge.py
+WorkingDirectory=/home/hoangnh/src/project_all_cli
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=hoangnh
+
+[Install]
+WantedBy=multi-user.target

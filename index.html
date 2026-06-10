@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI CLI Manager</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🤖 AI CLI Manager</h1>
+    </header>
+
+    <!-- Dashboard -->
+    <section class="dashboard">
+      <div class="card">
+        <div class="label">Current AI</div>
+        <div id="current-ai-name" class="value">—</div>
+        <div id="current-ai-status" class="status-badge">Ready</div>
+        <div class="row">
+          <button id="btn-mark-limited" class="btn btn-danger">⚠ Mark Limited</button>
+          <button id="btn-remove-limit" class="btn hidden">✓ Remove Limit</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label">📁 Working Directory</div>
+        <div class="workdir-row">
+          <input id="workdir-input" type="text" placeholder="/home/user/project" />
+          <button id="btn-pick-dir" class="btn" title="Pick folder">📂</button>
+        </div>
+        <div class="label" style="margin-top:8px">🔗 Bridge Host</div>
+        <input id="bridge-host-input" type="text" placeholder="127.0.0.1:7700" title="IP:Port of your local bridge" />
+      </div>
+    </section>
+
+    <!-- Limit date picker -->
+    <div id="limit-picker" class="limit-picker hidden">
+      <span class="label">Limited until:</span>
+      <input id="limit-date" type="date" />
+      <button id="btn-confirm-limit" class="btn btn-danger">Confirm</button>
+      <button id="btn-cancel-limit" class="btn">Cancel</button>
+    </div>
+
+    <!-- AI List -->
+    <section class="section">
+      <div class="section-header">
+        <h2>AI List</h2>
+        <div class="header-actions">
+           <span id="bridge-status-dot" class="dot"></span>
+           <button id="btn-add-ai" class="btn btn-primary">+ Add AI</button>
+        </div>
+      </div>
+      
+      <div class="tip-box">
+        💡 <b>Mẹo:</b> Để chạy nhanh, hãy cài đặt <b>Desktop Shortcut</b> theo hướng dẫn trong README.
+      </div>
+
+      <!-- Add form -->
+      <div id="add-ai-form" class="add-form hidden">
+        <input id="new-ai-name"     type="text"   placeholder="Name (e.g. Kiro CLI)" />
+        <input id="new-ai-command"  type="text"   placeholder="Command (e.g. kiro-cli)" />
+        <input id="new-ai-priority" type="number" placeholder="Priority" min="1" value="1" />
+        <button id="btn-save-ai" class="btn btn-primary">Save</button>
+        <button id="btn-cancel-ai" class="btn">Cancel</button>
+      </div>
+
+      <div id="ai-list" class="ai-list"></div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

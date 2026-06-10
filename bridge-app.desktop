@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Bridge App
+Comment=Start Bridge Python Server and Web UI
+Exec=/usr/bin/bash /home/hoangnh/src/project_all_cli/start.sh
+Icon=utilities-terminal
+Terminal=false
+Type=Application
+Categories=Development;
+Keywords=python;bridge;cli;
