@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 ExecStartPre=/usr/bin/pkill -f bridge.py || true
-ExecStart=/usr/bin/python3 /home/hoangnh/src/project_all_cli/bridge.py
-WorkingDirectory=/home/hoangnh/src/project_all_cli
+ExecStart=/usr/bin/python3 /home/hoangnh/src/Bridge App/bridge.py
+WorkingDirectory=/home/hoangnh/src/Bridge App
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
